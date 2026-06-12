@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -13,41 +14,72 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+  try {
+    const { data: user, error } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('username', username)
+      .single();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        login(data.user, data.token);
-        toast.success('Login successful!');
-        navigate('/admin/dashboard');
-      } else {
-        toast.error(data.message || 'Login failed');
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try later.');
-    } finally {
-      setLoading(false);
+    if (error || !user) {
+      toast.error('Invalid credentials');
+      return;
     }
-  };
+
+    if (user.password !== password) {
+      toast.error('Invalid credentials');
+      return;
+    }
+
+    login({
+      id: user.id,
+      username: user.username,
+      role: 'admin',
+    });
+
+    toast.success('Login successful!');
+    navigate('/admin/dashboard');
+  } catch (error) {
+    console.error(error);
+    toast.error('Something went wrong');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSeed = async () => {
-    try {
-      const res = await fetch('/api/seed-admin', { method: 'POST' });
-      const data = await res.json();
-      toast.info(data.message);
-    } catch (e) {
-      toast.error('Seeding failed');
+  try {
+    const { data: existing } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('username', 'admin')
+      .maybeSingle();
+
+    if (existing) {
+      toast.info('Admin already exists');
+      return;
     }
-  };
+
+    const { error } = await supabase
+      .from('admins')
+      .insert([
+        {
+          username: 'admin',
+          password: 'admin123',
+        },
+      ]);
+
+    if (error) throw error;
+
+    toast.success('Admin created successfully');
+  } catch (error) {
+    console.error(error);
+    toast.error('Seeding failed');
+  }
+};
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
