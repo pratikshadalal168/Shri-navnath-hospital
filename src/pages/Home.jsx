@@ -278,7 +278,7 @@ const Home = () => {
   <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 w-[320px] h-[420px] mx-auto flex flex-col hover:shadow-xl transition-all duration-300">
 
     <img
-      src="public/pramod.jpeg"
+      src="/pramod.jpeg"
       alt="Dr. Pramod Dalal"
       className="w-full h-52 object-cover"
     />
@@ -306,7 +306,7 @@ const Home = () => {
   <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 w-[320px] h-[420px] mx-auto flex flex-col hover:shadow-xl transition-all duration-300">
 
     <img
-      src="public/kirti.jpeg"
+      src="/kirti.jpeg"
       alt="Dr. Kirti Dalal"
       className="w-full h-52 object-cover"
     />
